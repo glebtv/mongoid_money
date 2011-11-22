@@ -8,7 +8,7 @@ Dir["./spec/support/**/*.rb"].each {|f| require f}
 
 SimpleCov.start
 
-Mongoid.config.master = Mongo::Connection.new.db("monogid_money_test")
+Mongoid.config.master = Mongo::Connection.new.db("mongoid_money_test")
 Mongoid.logger = Logger.new($stdout)
 
 DatabaseCleaner.orm = "mongoid"

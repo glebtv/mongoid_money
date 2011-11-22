@@ -5,7 +5,7 @@ module Mongoid
         def set(value)
           return nil if value.blank?
           begin
-            value.cents
+            value.hundredths
           rescue
             value
           end
@@ -13,7 +13,7 @@ module Mongoid
         def get(value)
           return nil if value.blank?
           begin
-            self.new_from_cents value
+            self.new_from_hundredths value
           rescue
             nil
           end

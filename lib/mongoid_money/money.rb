@@ -3,9 +3,9 @@ class Money < Numeric
   include Comparable
   include Mongoid::Fields::Serializable
 
-  attr_reader :cents
+  attr_reader :hundredths
 
-  def self.new_from_dollars(value)
+  def self.new_from_ones(value)
     case value
       when Fixnum
         Money.new(value * 100)
@@ -23,18 +23,18 @@ class Money < Numeric
     end
   end
 
-  def self.new_from_cents(cents)
-    Money.new cents.round.to_i
+  def self.new_from_hundredths(hundredths)
+    Money.new hundredths.round.to_i
   end
 
-  def initialize(cents)
-    @cents = cents.round.to_i
+  def initialize(hundredths)
+    @hundredths = hundredths.round.to_i
   end
 
   def deserialize(value)
     return nil if value.blank?
     begin
-      Money.new_from_cents value
+      Money.new_from_hundredths value
     rescue
       nil
     end
@@ -43,20 +43,20 @@ class Money < Numeric
   def serialize(value)
     return nil if value.blank?
     begin
-      value.cents
+      value.hundredths
     rescue
       value
     end
   end
 
-  def dollars
-    cents.to_f / 100.0
+  def ones
+    hundredths.to_f / 100.0
   end
 
   def ==(other_money)
     if other_money.respond_to?(:to_money)
       other_money = other_money.to_money
-      cents == other_money.cents
+      hundredths == other_money.hundredths
     else
       false
     end
@@ -67,39 +67,39 @@ class Money < Numeric
   end
 
   def hash
-    cents.hash
+    hundredths.hash
   end
 
   def <=>(other_money)
     if other_money.respond_to?(:to_money)
       other_money = other_money.to_money
-      cents <=> other_money.cents
+      hundredths <=> other_money.hundredths
     else
       raise ArgumentError, "Comparison of #{self.class} with #{other_money.inspect} failed"
     end
   end
 
   def +(other_money)
-    Money.new(cents + other_money.cents)
+    Money.new(hundredths + other_money.hundredths)
   end
 
   def -(other_money)
-    Money.new(cents - other_money.cents)
+    Money.new(hundredths - other_money.hundredths)
   end
 
   def *(value)
     if value.is_a?(Money)
       raise ArgumentError, "Can't multiply a Money by a Money"
     else
-      Money.new(cents * value)
+      Money.new(hundredths * value)
     end
   end
 
   def /(value)
     if value.is_a?(Money)
-      (cents / value.cents.to_f).to_f
+      (hundredths / value.hundredths.to_f).to_f
     else
-      Money.new(cents / value)
+      Money.new(hundredths / value)
     end
   end
 
@@ -109,12 +109,12 @@ class Money < Numeric
 
   def divmod(val)
     if val.is_a?(Money)
-      a = self.cents
-      b = val.cents
+      a = self.hundredths
+      b = val.hundredths
       q, m = a.divmod(b)
       return [q, Money.new(m)]
     else
-      return [self.div(val), Money.new(self.cents.modulo(val))]
+      return [self.div(val), Money.new(self.hundredths.modulo(val))]
     end
   end
 
@@ -130,23 +130,23 @@ class Money < Numeric
     a, b = self, val
 
     a_sign, b_sign = :pos, :pos
-    a_sign = :neg if a.cents < 0
-    b_sign = :neg if (b.is_a?(Money) and b.cents < 0) or (b < 0)
+    a_sign = :neg if a.hundredths < 0
+    b_sign = :neg if (b.is_a?(Money) and b.hundredths < 0) or (b < 0)
 
     return a.modulo(b) if a_sign == b_sign
     a.modulo(b) - (b.is_a?(Money) ? b : Money.new(b))
   end
 
   def abs
-    Money.new(self.cents.abs)
+    Money.new(self.hundredths.abs)
   end
 
   def zero?
-    cents == 0
+    hundredths == 0
   end
 
   def nonzero?
-    cents != 0 ? self : nil
+    hundredths != 0 ? self : nil
   end
 
   def to_money
@@ -158,19 +158,19 @@ class Money < Numeric
   end
 
   def odd?
-    @cents%2 > 0
+    @hundredths%2 > 0
   end
 
   def even?
-    @cents%2 == 0
+    @hundredths%2 == 0
   end
 
   def to_s
-    dollars.to_s
+    ones.to_s
   end
 
   def to_f
-    dollars
+    ones
   end
 
   def coerce(other)
@@ -181,20 +181,20 @@ end
 
 class Numeric
 
-  def dollar
-    dollars
+  def one
+    ones
   end
 
-  def dollars
-    Money.new_from_dollars self
+  def ones
+    Money.new_from_ones self
   end
 
-  def cent
-    cents
+  def hundredth
+    hundredths
   end
 
-  def cents
-    Money.new_from_cents self
+  def hundredths
+    Money.new_from_hundredths self
   end
 
 end
