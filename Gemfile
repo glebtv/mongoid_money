@@ -2,7 +2,7 @@ source "http://rubygems.org"
 # Add dependencies required to use your gem here.
 
 gem "bson_ext"
-gem "mongoid", "~> 2.0"
+gem "mongoid", ">= 2.4.5"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
