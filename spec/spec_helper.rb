@@ -1,12 +1,15 @@
+require "simplecov"
+
 require 'mongoid'
 require 'database_cleaner'
-require 'mongoid_money'
 require 'rubygems'
-require "simplecov"
+
+SimpleCov.start
+require 'mongoid_money'
 
 Dir["./spec/support/**/*.rb"].each {|f| require f}
 
-SimpleCov.start
+
 
 Mongoid.config.master = Mongo::Connection.new.db("monogid_money_test")
 Mongoid.logger = Logger.new($stdout)

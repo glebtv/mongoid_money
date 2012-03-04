@@ -16,17 +16,29 @@ describe Mongoid::Extensions::Money::Conversions do
       dummy.save.should eq true
     end
     
+    it 'should use default value' do
+      dummy = DummyMoney.new
+      dummy.price.should eq 5.cents
+    end
+    
+    it 'should be persisted as nil when blank' do
+      dummy = DummyMoney.new
+      dummy.price = ''
+      dummy.price.should eq nil
+      dummy.save.should eq true
+    end
   end
   
   describe 'when accessing a document from the datastore with a Money datatype' do
     
     before(:each) do
-      DummyMoney.create(:description => "Test", :price => 9.dollars)
+      DummyMoney.create(:description => "Test", :price => 9.33.dollars)
     end
     
     it 'should have a Money value that matches the money value that was initially persisted' do
       dummy = DummyMoney.first
-      dummy.price.should eq 9.dollars
+      dummy.price.should eq 9.33.dollars
+      dummy.price.should eq 933.cents
     end
     
   end
