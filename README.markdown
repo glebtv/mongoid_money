@@ -8,6 +8,10 @@ with this advice
     
 instead of this.
 
+Or try my super small and simple money_field gem
+    https://github.com/glebtv/mongoid_money_field
+
+
 ## Description
 
 A simple gem that creates a Money datatype for Mongoid.
