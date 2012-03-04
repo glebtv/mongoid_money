@@ -1,5 +1,4 @@
 class Money < Numeric
-  extend Mongoid::Extensions::Money::Conversions
   include Comparable
   include Mongoid::Fields::Serializable
 
@@ -12,10 +11,11 @@ class Money < Numeric
       when BigDecimal
         Money.new((value * 100).fix)
       when Float
-        #Money.new((BigDecimal.new(value.to_s) * 100).fix)
         Money.new(value * 100)
-      when Numeric
-        Money.new(value * 100)
+      when Money
+        Money.new(value.cents)
+      #when Numeric
+      #  Money.new(value * 100)
       when String
         Money.new((BigDecimal.new(value.to_s) * 100).fix)
       else
@@ -24,28 +24,23 @@ class Money < Numeric
   end
 
   def self.new_from_cents(cents)
-    Money.new cents.round.to_i
+    Money.new cents.to_i
   end
 
   def initialize(cents)
-    @cents = cents.round.to_i
+    raise ArgumentError if cents.respond_to?(:nan?) && cents.nan?
+    @cents = cents.to_i
   end
 
   def deserialize(value)
-    return nil if value.blank?
-    begin
-      Money.new_from_cents value
-    rescue
-      nil
-    end
+    Money.new_from_cents value
   end
 
   def serialize(value)
-    return nil if value.blank?
     begin
       value.cents
     rescue
-      value
+      (Money.new_from_dollars value).cents
     end
   end
 
@@ -79,6 +74,17 @@ class Money < Numeric
     end
   end
 
+  # Returns a money object with changed polarity.
+  #
+  # @return [Money]
+  #
+  # @example
+  #    - Money.new(100) #=> #<Money @cents=-100>
+  def -@
+    Money.new(-cents)
+  end
+
+
   def +(other_money)
     Money.new(cents + other_money.cents)
   end
@@ -109,12 +115,10 @@ class Money < Numeric
 
   def divmod(val)
     if val.is_a?(Money)
-      a = self.cents
-      b = val.cents
-      q, m = a.divmod(b)
+      q, m = @cents.divmod(val.cents)
       return [q, Money.new(m)]
     else
-      return [self.div(val), Money.new(self.cents.modulo(val))]
+      return [self.div(val), Money.new(@cents.modulo(val))]
     end
   end
 
@@ -131,22 +135,22 @@ class Money < Numeric
 
     a_sign, b_sign = :pos, :pos
     a_sign = :neg if a.cents < 0
-    b_sign = :neg if (b.is_a?(Money) and b.cents < 0) or (b < 0)
+    b_sign = :neg if (b.is_a?(Money) and b.cents < 0) or (!b.is_a?(Money) && b < 0)
 
     return a.modulo(b) if a_sign == b_sign
     a.modulo(b) - (b.is_a?(Money) ? b : Money.new(b))
   end
 
   def abs
-    Money.new(self.cents.abs)
+    Money.new(@cents.abs)
   end
 
   def zero?
-    cents == 0
+    @cents == 0
   end
 
   def nonzero?
-    cents != 0 ? self : nil
+    @cents != 0
   end
 
   def to_money
@@ -158,23 +162,27 @@ class Money < Numeric
   end
 
   def odd?
-    @cents%2 > 0
+    @cents % 2 != 0
   end
 
   def even?
-    @cents%2 == 0
+    @cents % 2 == 0
   end
 
+  def to_i
+    @cents
+  end
+  
   def to_s
-    dollars.to_s
+    sprintf("%.2f", dollars.to_f)
   end
 
   def to_f
-    dollars
+    dollars.to_f
   end
 
   def coerce(other)
-    return other, to_f
+     [self, other]
   end
 
 end

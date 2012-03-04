@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Mongoid::Extensions::Money::Conversions do
+describe Mongoid::Extensions::Money do
   
   describe 'when persisting a document with a Money datatype' do
   
@@ -21,10 +21,10 @@ describe Mongoid::Extensions::Money::Conversions do
       dummy.price.should eq 5.cents
     end
     
-    it 'should be persisted as nil when blank' do
+    it 'should be persisted as 0 cents when blank' do
       dummy = DummyMoney.new
       dummy.price = ''
-      dummy.price.should eq nil
+      dummy.price.should eq 0.cents
       dummy.save.should eq true
     end
   end

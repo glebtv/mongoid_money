@@ -2,7 +2,6 @@ require "simplecov"
 
 require 'mongoid'
 require 'database_cleaner'
-require 'rubygems'
 
 SimpleCov.start
 require 'mongoid_money'

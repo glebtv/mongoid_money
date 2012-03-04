@@ -1,10 +1,12 @@
 # mongoid_money
+    
+You really, really should use this gem
+    https://github.com/RubyMoney/money.git
 
-Be aware! This gem currently requires mongoid to be included in your gemfile as such
-
-    gem "mongoid", :git => "git://github.com/mongoid/mongoid.git"
-
-due to a type casting bug introduced in Mongoid version 2.0.0. The fix has not been released to rubygems.org yet.
+with this advice
+    https://gist.github.com/840500
+    
+instead of this.
 
 ## Description
 
@@ -14,7 +16,7 @@ A simple gem that creates a Money datatype for Mongoid.
 
 Include the gem in your Gemfile
 
-    gem 'mongoid_money'
+    gem 'mongoid_money', git: 'https://github.com/glebtv/mongoid_money'
     
 ## Usage
 
