@@ -1,7 +1,7 @@
 # mongoid_money
     
 You really, really should use this gem
-    https://github.com/RubyMoney/money.git
+    https://github.com/RubyMoney/money
 
 with this advice
     https://gist.github.com/840500
